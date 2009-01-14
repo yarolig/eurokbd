@@ -10,7 +10,7 @@ CC_X86          =  cl
 INCLUDE_X86     = "C:\Program Files\Microsoft Visual Studio 8\VC\PlatformSDK\Include"
 LINK_X86        =  link
 LIB_X86         = "C:\Program Files\Microsoft Visual Studio 8\VC\PlatformSDK\Lib"
-DEFS_X86        = -DNDEBUG -DMEMCHECK -DUNICODE
+DEFS_X86        =  -DMEMCHECK -DUNICODE
 CPPFLAGS_X86    = -Zi -nologo -c -Osyx -Oi- -Ob2 -W3 -GAFy -GS- -GR- -EHsc -wd4996 -I$(INCLUDE_X86) $(DEFS_X86)
 
 #CC_ARM          = "C:\Program Files\Microsoft Visual Studio 8\VC\ce\bin\x86_arm\ms_cl.exe"

@@ -271,11 +271,11 @@ protected:
         CKbdConfig *pConfig = new CKbdConfig(pw);
         if( pConfig->Ensure()==CKbdConfig::E_OK )
         {
+            m_pwCurrentConfigName = _wcsdup(pcwName);
+
             m_config = pConfig;
 
             ReloadSkin();
-
-            m_pwCurrentConfigName = _wcsdup(pcwName);
         } else
         {
             BOX(L"ERROR", L"Error load config '%s'", pw);
