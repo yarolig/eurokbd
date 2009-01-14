@@ -9,4 +9,4 @@ nmake clean
 
 cd ..
 zip eurokbd.cab.zip eurokbd.CAB
-zip -r eurokbd-src.zip eurokbd
+zip -r eurokbd-src.zip trunk
