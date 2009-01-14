@@ -187,7 +187,7 @@ public:
     //CParseError(LPCWSTR fmt, ...);
 };
 
-static PWCHAR trystr(LPCWSTR p, int len)
+static PWCHAR trystr(LPCWSTR p, int len, bool bNoThrowException = false)
 {
     if(len>=3 && p[0]=='"' && p[len-1]=='"')
     {
@@ -229,7 +229,10 @@ static PWCHAR trystr(LPCWSTR p, int len)
         *pw = 0;
         return pw0;
     }
-    throw CParseError(__LINE__);
+    if(bNoThrowException)
+        return 0;
+    else
+        throw CParseError(__LINE__);
 }
 
 static int tryint(LPCWSTR p, int len)
@@ -288,10 +291,8 @@ static keydata trykdata(LPCWSTR p, int len)
     keydata kd = {0};
     if(!(len==0 || (len==1 && p[0]=='0') || (len>=1 && p[0]=='#'))) // остаётся ноль
     {
-        try
-        {
-            kd.pw = trystr(p, len);
-        } catch(...)
+        kd.pw = trystr(p, len, true);
+        if(0==kd.pw)
         {
             kd.w = tryint(p, len) & 0xFFFF;
         }
@@ -326,12 +327,15 @@ public:
 
     CPtr<WCHAR>         m_pwFontBig;
     LONG                m_iFontBig;
+    bool                m_bFontBigBold;
 
     CPtr<WCHAR>         m_pwFontSmall;
     LONG                m_iFontSmall;
+    bool                m_bFontSmallBold;
 
     CPtr<WCHAR>         m_pwFontIndex;
     LONG                m_iFontIndex;
+    bool                m_bFontIndexBold;
 
 
 protected:
@@ -473,14 +477,17 @@ protected:
         m_colors[SK_GROUP_SHIFT   ][0] = RGB(0x00,0x00,0x00);
         m_colors[SK_GROUP_SHIFT   ][1] = RGB(0xFF,0x00,0xFF);
 
-        m_pwFontBig   = _wcsdup(L"Tahoma");
-        m_iFontBig     = 12;
+        m_pwFontBig     = _wcsdup(L"Tahoma");
+        m_iFontBig      = 12;
+        m_bFontBigBold  = false;
 
-        m_pwFontSmall = _wcsdup(L"Tahoma");
-        m_iFontSmall   = 8;
+        m_pwFontSmall   = _wcsdup(L"Tahoma");
+        m_iFontSmall    = 8;
+        m_bFontSmallBold= false;
 
-        m_pwFontIndex = _wcsdup(L"Tahoma");
-        m_iFontIndex   = 10;
+        m_pwFontIndex   = _wcsdup(L"Tahoma");
+        m_iFontIndex    = 10;
+        m_bFontIndexBold= false;
 
         m_colorDesc  = RGB(0x99, 0x99, 0x99);
         m_colorDesc2 = RGB(0x00, 0x99, 0x00);
@@ -527,8 +534,8 @@ protected:
             return;
         }
 
-        const WCHAR* ptrs[MAXITEMS];
-        size_t      lens[MAXITEMS];
+        const WCHAR* ptrs[MAXITEMS] = {0};
+        size_t      lens[MAXITEMS] = {0};
         int         nitems;
 
         for(nitems=0; len && nitems<=MAXITEMS; nitems++)
@@ -652,16 +659,19 @@ protected:
             m_colorDesc2  = tryint(ptrs[2], lens[2]);
         } else if( CMP(ptrs[0], lens[0], L"FONT_BIG", 8))
         {
-            m_pwFontBig   = trystr(ptrs[1], lens[1]);
-            m_iFontBig    = tryint(ptrs[2], lens[2]);
+            m_pwFontBig         = trystr(ptrs[1], lens[1]);
+            m_iFontBig          = tryint(ptrs[2], lens[2]);
+            m_bFontBigBold      = CMP(ptrs[3], lens[3], L"BOLD", 4);
         } else if( CMP(ptrs[0], lens[0], L"FONT_SMALL", 10))
         {
-            m_pwFontSmall = trystr(ptrs[1], lens[1]);
-            m_iFontSmall  = tryint(ptrs[2], lens[2]);
+            m_pwFontSmall       = trystr(ptrs[1], lens[1]);
+            m_iFontSmall        = tryint(ptrs[2], lens[2]);
+            m_bFontSmallBold    = CMP(ptrs[3], lens[3], L"BOLD", 4);
         } else if( CMP(ptrs[0], lens[0], L"FONT_INDEX", 10))
         {
-            m_pwFontIndex = trystr(ptrs[1], lens[1]);
-            m_iFontIndex  = tryint(ptrs[2], lens[2]);
+            m_pwFontIndex       = trystr(ptrs[1], lens[1]);
+            m_iFontIndex        = tryint(ptrs[2], lens[2]);
+            m_bFontIndexBold    = CMP(ptrs[3], lens[3], L"BOLD", 4);
         } else
         {
             int group = strToSkGroup(ptrs[0], lens[0]);

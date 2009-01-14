@@ -124,7 +124,7 @@ public:
     {
         p->next = 0;
         p->prev = last;
-        last->next = p;
+        (last ? last->next : first) = p;
         last = p;
     }
 

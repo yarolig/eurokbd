@@ -25,12 +25,13 @@ void LOG(LPCWSTR fmt, ... )
     int len = GetWindowTextLength(hwndLog);
     PWCHAR pw = new WCHAR[len+8192];
     len = GetWindowText(hwndLog, pw, len+1);
-    pw[len++] = '\r';
-    pw[len++] = '\n';
-    pw[len] = '\0';
+
+    int x = _snwprintf( pw+len, 8192/2-len-1, L"\r\n%d: ", GetTickCount() );
+    if(x>0)
+        len += x;
 
     va_start( ap, fmt );
-    int x = _vsnwprintf( pw+len, 8192/2-1, fmt, ap );
+    x = _vsnwprintf( pw+len, 8192/2-len-1, fmt, ap );
     if(x>0)
         len += x;
     pw[len] = L'\0';
@@ -110,20 +111,31 @@ CCallback g_callback;
 typedef HRESULT (STDAPICALLTYPE *TDllGetClassObject)(REFCLSID rclsid, REFIID riid, LPVOID* ppv);
 IInputMethod* LoadKbd(HWND hWnd)
 {
+    LOG(L"LoadLibrary");
+#ifdef _WIN32_WCE
+    HINSTANCE hLib = LoadLibrary(L"eurokbd.dll");
+#else
     HINSTANCE hLib = LoadLibrary(L"eurokbd-x86.dll");
+#endif
     if(!hLib)
     {
         MessageBox(0, L"LoadLibrary", L"ERROR", 0);
         return 0;
     }
 
+    LOG(L"GetProcAddress");
+#ifdef _WIN32_WCE
+    TDllGetClassObject pfnDllGetClassObject = (TDllGetClassObject)GetProcAddress(hLib, L"DllGetClassObject");
+#else
     TDllGetClassObject pfnDllGetClassObject = (TDllGetClassObject)GetProcAddress(hLib, "DllGetClassObject");
+#endif
     if(!pfnDllGetClassObject)
     {
         MessageBox(0, L"GetProcAddress", L"ERROR", 0);
         return 0;
     }
 
+    LOG(L"GetClassObject");
     IClassFactory* pCF;
     HRESULT hr = pfnDllGetClassObject(CLSID_EuroKbd, IID_IClassFactory, (LPVOID*)&pCF);
     if(FAILED(hr))
@@ -132,6 +144,7 @@ IInputMethod* LoadKbd(HWND hWnd)
         return 0;
     }
 
+    LOG(L"CreateInstance");
     IInputMethod* pIM;
     hr = pCF->CreateInstance(0, IID_IInputMethod, (void**)&pIM);
     if(FAILED(hr))
@@ -142,6 +155,7 @@ IInputMethod* LoadKbd(HWND hWnd)
     }
     pCF->Release();
 
+    LOG(L"RegisterCallback");
     hr = pIM->RegisterCallback( &g_callback );
     if(FAILED(hr))
     {
@@ -150,6 +164,7 @@ IInputMethod* LoadKbd(HWND hWnd)
         return 0;
     }
 
+    LOG(L"GetInfo");
     IMINFO iminfo;
     ZeroMemory(&iminfo, sizeof(IMINFO));
     iminfo.cbSize = sizeof(IMINFO);
@@ -166,18 +181,24 @@ IInputMethod* LoadKbd(HWND hWnd)
 //      iminfo.rcSipRect.right
 //      );
 
+    LOG(L"Select");
     pIM->Select(hWnd);
 
+
+    LOG(L"ReceiveSipInfo");
     SIPINFO si;
     ZeroMemory(&si, sizeof(SIPINFO));
     si.cbSize = sizeof(SIPINFO);
     GetWindowRect(hWnd, &si.rcSipRect);
-    int iHeight = 200; //iminfo.rcSipRect.bottom - iminfo.rcSipRect.top;
+    int iHeight = 160; //iminfo.rcSipRect.bottom - iminfo.rcSipRect.top;
     if(iHeight)
     {
         si.rcSipRect.top = si.rcSipRect.bottom - iHeight;
     }
     pIM->ReceiveSipInfo(&si);
+
+
+    LOG(L"OK");
 
 
 //  iim->Showing();
@@ -187,16 +208,25 @@ IInputMethod* LoadKbd(HWND hWnd)
     return pIM;
 }
 
+enum {ID_TIMER=101};
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
     {
     case WM_CREATE:
+        SetTimer( hWnd, ID_TIMER, 100, NULL );
+
+        break;
+    case WM_TIMER:
         {
-            IInputMethod* pIM = LoadKbd(hWnd);
+            IInputMethod* pIM;
+/*
+            pIM = LoadKbd(hWnd);
             pIM->Release();
+*/
             pIM = LoadKbd(hWnd);
         }
+        KillTimer( hWnd, ID_TIMER );
         break;
 
     case WM_DESTROY:
@@ -219,7 +249,10 @@ int main()
     wc.lpfnWndProc   = WndProc;
     HINSTANCE hInstance = LoadLibrary(0);
     wc.hInstance     = hInstance;
+#ifdef _WIN32_WCE
+#else
     wc.hCursor = LoadCursor(LoadLibrary(L"USER32"), MAKEINTRESOURCE(100));
+#endif
     wc.hbrBackground = (HBRUSH)COLOR_APPWORKSPACE;
     wc.lpszClassName = L"KTestCLASS";
 
@@ -229,8 +262,13 @@ int main()
         return 0;
     }
 
+#ifdef _WIN32_WCE
+    HWND hWnd = CreateWindow(wc.lpszClassName, L"KTest", WS_OVERLAPPED | WS_SYSMENU | WS_VISIBLE,
+        0, 0, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hInstance, NULL);
+#else
     HWND hWnd = CreateWindow(wc.lpszClassName, L"KTest", WS_OVERLAPPEDWINDOW,
         600, 400, 660, 800, NULL, NULL, hInstance, NULL);
+#endif
 
     if (!hWnd)
     {
@@ -238,9 +276,15 @@ int main()
         return 0;
     }
 
+#ifdef _WIN32_WCE
+    hwndLog = CreateWindow(L"EDIT", L"",
+        WS_CHILD | WS_VISIBLE | WS_BORDER | WS_HSCROLL | WS_VSCROLL | ES_MULTILINE | ES_AUTOHSCROLL | ES_AUTOVSCROLL,
+        0, 160, 480, 340, hWnd, NULL, hInstance, NULL);
+#else
     hwndLog = CreateWindow(L"EDIT", L"",
         WS_CHILD | WS_VISIBLE | WS_BORDER | WS_HSCROLL | WS_VSCROLL | ES_MULTILINE | ES_AUTOHSCROLL | ES_AUTOVSCROLL,
         0, 160, 640, 600, hWnd, NULL, hInstance, NULL);
+#endif
     if (!hwndLog)
     {
         MessageBox(0, L"CreateWindow(EDIT)", L"ERROR", 0);
