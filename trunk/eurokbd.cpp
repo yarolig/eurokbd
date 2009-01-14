@@ -197,6 +197,7 @@ protected:
     void SaveCursorPos(HWND hwnd, LPARAM lParam)
     {
         POINT pt = {LOWORD(lParam), HIWORD(lParam)};
+        //m_ptCursorClientPos = pt;
         if( ClientToScreen(hwnd, &pt) )
         {
             m_ptCursorPos = pt;
@@ -496,14 +497,14 @@ protected:
         return 0;
     }
 
-    static void InitFont(CGdiObj<HFONT>& hFont, LPCWSTR pcwFontFace, LONG iFontSize)
+    static void InitFont(CGdiObj<HFONT>& hFont, LPCWSTR pcwFontFace, LONG iFontSize, bool bBold)
     {
         if(!hFont)
         {
             LOGFONT lf;
             ZeroMemory(&lf, sizeof(lf));
             lf.lfHeight = -iFontSize;
-            lf.lfWeight = FW_NORMAL;
+            lf.lfWeight = bBold ? FW_BOLD : FW_NORMAL;
             lf.lfCharSet = DEFAULT_CHARSET;
             lstrcpyW(lf.lfFaceName, pcwFontFace);
             hFont = CreateFontIndirect(&lf);
@@ -517,16 +518,16 @@ protected:
 
     void InitFonts()
     {
-        InitFont(m_hFontBig,   m_config->m_pwFontBig.ptr(),   m_config->m_iFontBig  *m_vga);
-        InitFont(m_hFontSmall, m_config->m_pwFontSmall.ptr(), m_config->m_iFontSmall*m_vga);
-        InitFont(m_hFontIndex, m_config->m_pwFontIndex.ptr(), m_config->m_iFontIndex*m_vga);
+        InitFont(m_hFontBig,   m_config->m_pwFontBig.ptr(),   m_config->m_iFontBig  *m_vga, m_config->m_bFontBigBold  );
+        InitFont(m_hFontSmall, m_config->m_pwFontSmall.ptr(), m_config->m_iFontSmall*m_vga, m_config->m_bFontSmallBold);
+        InitFont(m_hFontIndex, m_config->m_pwFontIndex.ptr(), m_config->m_iFontIndex*m_vga, m_config->m_bFontIndexBold);
         if(!m_hilSymbols32)
         {
             m_hilSymbols32  = ImageList_Create(32, 32, ILC_COLOR | ILC_MASK, 1, 1 );
 #ifdef _WIN32_WCE
-            CGdiObj<HBITMAP> hbm = SHLoadImageResource(g_hInstDll, IDB_SYMBOLS32);
+            CGdiObj<HBITMAP> hbm ( SHLoadImageResource(g_hInstDll, IDB_SYMBOLS32) );
 #else
-            CGdiObj<HBITMAP> hbm = LoadBitmap( g_hInstDll, MAKEINTRESOURCE(IDB_SYMBOLS32) );
+            CGdiObj<HBITMAP> hbm ( LoadBitmap( g_hInstDll, MAKEINTRESOURCE(IDB_SYMBOLS32) ) );
 #endif
             if(hbm)
             {
@@ -537,9 +538,9 @@ protected:
         {
             m_hilSymbols16  = ImageList_Create(16, 16, ILC_COLOR | ILC_MASK, 1, 1 );
 #ifdef _WIN32_WCE
-            CGdiObj<HBITMAP> hbm = SHLoadImageResource(g_hInstDll, IDB_SYMBOLS16);
+            CGdiObj<HBITMAP> hbm ( SHLoadImageResource(g_hInstDll, IDB_SYMBOLS16) );
 #else
-            CGdiObj<HBITMAP> hbm = LoadBitmap( g_hInstDll, MAKEINTRESOURCE(IDB_SYMBOLS16) );
+            CGdiObj<HBITMAP> hbm ( LoadBitmap( g_hInstDll, MAKEINTRESOURCE(IDB_SYMBOLS16) ) );
 #endif
             if(hbm)
             {
@@ -690,7 +691,7 @@ protected:
                         {
                             sw[0] = 0;
                             int format = 0;
-                            while (format = EnumClipboardFormats (format))
+                            while ((format = EnumClipboardFormats (format)) != 0)
                             {
                                 if(format==CF_BITMAP)
                                     swprintf( sw, L"paste CF_BITMAP");
@@ -755,13 +756,13 @@ protected:
             CPaintDC hdc(m_hwndPop);
 #endif
 
-            CGdiObj<HBRUSH> hBrush = CreateSolidBrush(m_config->m_colorPopBorder);
+            CGdiObj<HBRUSH> hBrush ( CreateSolidBrush(m_config->m_colorPopBorder));
             assert(hBrush);
             FillRect(hdc, &hdc.rect(), hBrush);
 
-            CGdiObj<HPEN> hPenTL   = CreatePen(PS_SOLID, 1, RGB(0xCC,0xCC,0xCC));
+            CGdiObj<HPEN> hPenTL   ( CreatePen(PS_SOLID, 1, RGB(0xCC,0xCC,0xCC)));
             assert(hPenTL);
-            CGdiObj<HPEN> hPenBR   = CreatePen(PS_SOLID, 1, RGB(0x66,0x66,0x66));
+            CGdiObj<HPEN> hPenBR   ( CreatePen(PS_SOLID, 1, RGB(0x66,0x66,0x66)));
             assert(hPenBR);
 
             InitFonts();
@@ -784,18 +785,11 @@ protected:
                 SubkeyRect(r, p);
                 if ( InRect(hdc.rect(), r) )
                 {
+                    const bool bBlack = m_subkeyCurrent==p;
+                    const COLORREF crFore = bBlack ? RGB(0xFF,0xFF,0xFF) : m_config->m_colors[p->group][0];
+                    const COLORREF crBack = bBlack ? RGB(0x00,0x00,0x00) : m_config->m_colors[p->group][1];
 
-                    COLORREF bgColor, fgColor;
-                    if( m_subkeyCurrent==p )
-                    {
-                        fgColor = RGB(0xFF,0xFF,0xFF);
-                        bgColor = RGB(0x00,0x00,0x00);
-                    } else
-                    {
-                        fgColor = m_config->m_colors[p->group][0];
-                        bgColor = m_config->m_colors[p->group][1];
-                    }
-                    CGdiObj<HBRUSH> hBrushBg = CreateSolidBrush(bgColor);
+                    CGdiObj<HBRUSH> hBrushBg ( CreateSolidBrush(crBack) );
                     assert(hBrushBg);
                     // если нет обоев
                     DrawButton(hdc, r, hBrushBg, hPenTL, hPenBR);
@@ -820,7 +814,7 @@ protected:
                     {
                         kdButtonText = p->data;
                     }
-                    DrawText(hdc, kdButtonText, &rect, DT_NOPREFIX | DT_CENTER | DT_VCENTER, fgColor);
+                    DrawText(hdc, kdButtonText, &rect, DT_NOPREFIX | DT_CENTER | DT_VCENTER, crFore);
                 }
             }
 
@@ -829,17 +823,11 @@ protected:
             SubkeyRect(r, SUBKEY_PARENT);
             if ( InRect(hdc.rect(), r) )
             {
-                COLORREF bgColor, fgColor;
-                if( m_subkeyCurrent==SUBKEY_PARENT )
-                {
-                    fgColor = RGB(0xFF,0xFF,0xFF);
-                    bgColor = RGB(0x00,0x00,0x00);
-                } else
-                {
-                    fgColor = m_config->m_colors[m_keyCurrent->group][0];
-                    bgColor = m_config->m_colors[m_keyCurrent->group][1];
-                }
-                CGdiObj<HBRUSH> hBrushBg = CreateSolidBrush(bgColor);
+                const bool bBlack = m_subkeyCurrent==SUBKEY_PARENT;
+                const COLORREF crFore = bBlack ? RGB(0xFF,0xFF,0xFF) : m_config->m_colors[m_keyCurrent->group][0];
+                const COLORREF crBack = bBlack ? RGB(0x00,0x00,0x00) : m_config->m_colors[m_keyCurrent->group][1];
+
+                CGdiObj<HBRUSH> hBrushBg ( CreateSolidBrush(crBack) );
                 assert(hBrushBg);
                 DrawButton(hdc, r, hBrushBg, hPenTL, hPenBR);
 
@@ -864,7 +852,7 @@ protected:
                 {
                     kdButtonText = m_keyCurrent->desc;
                 }
-                DrawText(hdc, kdButtonText, &rect, DT_NOPREFIX | DT_CENTER | DT_VCENTER, fgColor);
+                DrawText(hdc, kdButtonText, &rect, DT_NOPREFIX | DT_CENTER | DT_VCENTER, crFore);
             }
 
             return 0;
@@ -1049,8 +1037,16 @@ protected:
             m_ptPopShift.x = rmax.left;
             m_ptPopShift.y = rmax.top;
 
-            POINT ptMain = {0, 0};
-            ClientToScreen(m_hwndMain, &ptMain);
+
+            //POINT ptMain = {0, 0};
+            //ClientToScreen(m_hwndMain, &ptMain);
+
+            // еще одно смещение, чтобы середина при появлении попапа середина кнопки оказалась под курсором
+            POINT ptMain = {
+                m_ptCursorPos.x - ((m_keyCurrent->right + m_keyCurrent->left)/2)*m_vga,
+                m_ptCursorPos.y - ((m_keyCurrent->bottom + m_keyCurrent->top)/2)*m_vga
+                };
+
             SetWindowPos( m_hwndPop,
                             HWND_TOPMOST, //HWND_TOP,
                             ptMain.x + m_vga*(m_keyCurrent->left + rmax.left - m_config->m_rPopBorder.left),
@@ -1104,7 +1100,7 @@ protected:
 #else
                 CPaintDC hdc(m_hwndMain);
 #endif
-                CGdiObj<HBRUSH> hBrush = CreateSolidBrush(RGB(0xCC,0xCC,0xCC));
+                CGdiObj<HBRUSH> hBrush ( CreateSolidBrush(RGB(0xCC,0xCC,0xCC)) );
                 assert(hBrush);
                 FillRect(hdc, &hdc.rect(), hBrush);
 
@@ -1132,9 +1128,9 @@ protected:
 
                 //CGdiObj<HBRUSH>  hBrushBg = (HBRUSH)GetStockObject(WHITE_BRUSH);
                 //assert(hBrushBg);
-                CGdiObj<HPEN>   hPenTL   = CreatePen(PS_SOLID, 1, RGB(0xCC,0xCC,0xCC));
+                CGdiObj<HPEN>   hPenTL   ( CreatePen(PS_SOLID, 1, RGB(0xCC,0xCC,0xCC)) );
                 assert(hPenTL);
-                CGdiObj<HPEN>   hPenBR   = CreatePen(PS_SOLID, 1, RGB(0x66,0x66,0x66));
+                CGdiObj<HPEN>   hPenBR   ( CreatePen(PS_SOLID, 1, RGB(0x66,0x66,0x66)) );
                 assert(hPenBR);
 
                 InitFonts();
@@ -1145,11 +1141,18 @@ protected:
                     RECT r0 = { p->left*m_vga, p->top*m_vga, p->right*m_vga, p->bottom*m_vga };
                     if ( InRect(hdc.rect(), r0) )
                     {
+                        const bool bBlack = p==m_keyCurrent && !m_bPopupActive;
+
+                        const COLORREF crBackground = bBlack ? RGB(0x00,0x00,0x00) : m_config->m_colors[p->group][1];
+                        const COLORREF crFontBig    = bBlack ? RGB(0xFF,0xFF,0xFF) : m_config->m_colors[p->group][0];
+                        const COLORREF crDesc       = bBlack ? RGB(0xFF,0xFF,0xFF) : m_config->m_colorDesc;
+                        const COLORREF crDesc2      = bBlack ? RGB(0xFF,0xFF,0xFF) : m_config->m_colorDesc2;
+                        const COLORREF crSmall      = bBlack ? RGB(0xFF,0xFF,0xFF) : m_config->m_colors[p->group][0];
+
                         // если нет обоев - рисуем кнопочку, если кнопка текущая - рисуем чёрную кнопочку
-                        if(!m_hbmSkin || p==m_keyCurrent)
+                        if(!m_hbmSkin || bBlack)
                         {
-                            COLORREF bgColor = p==m_keyCurrent ? RGB(0x00,0x00,0x00) : m_config->m_colors[p->group][1];
-                            CGdiObj<HBRUSH> hBrushBg2 = CreateSolidBrush(bgColor);
+                            CGdiObj<HBRUSH> hBrushBg2 ( CreateSolidBrush(crBackground) );
                             assert(hBrushBg2);
                             DrawButton(hdc, r0, hBrushBg2, hPenTL, hPenBR);
                         }
@@ -1158,16 +1161,14 @@ protected:
                         if (0!=p->data.pw)
                         {
                             SelectObject(hdc, m_hFontBig);
-                            COLORREF fgColor = p==m_keyCurrent ? RGB(0xFF,0xFF,0xFF) : m_config->m_colors[p->group][0];
-                            DrawText(hdc, p->data, &rText, DT_NOPREFIX | DT_BOTTOM | DT_LEFT, fgColor);
+                            DrawText(hdc, p->data, &rText, DT_NOPREFIX | DT_BOTTOM | DT_LEFT, crFontBig);
 
                             if (0!=p->desc.pw) // надстрочный знак
                             {
                                 SelectObject(hdc, m_hFontIndex);
-                                COLORREF fgColor2 = p==m_keyCurrent ? RGB(0xFF,0xFF,0xFF) : m_config->m_colorDesc;
                                 //if(0!=p->desc2.pw) // есть оба знака - надстрочный двинем чуть левее
                                 //    rText.right -= 7*m_vga;
-                                DrawText(hdc, p->desc, &rText, DT_NOPREFIX | DT_RIGHT | DT_TOP, fgColor2);
+                                DrawText(hdc, p->desc, &rText, DT_NOPREFIX | DT_RIGHT | DT_TOP, crDesc);
                                 //if(0!=p->desc2.pw) // откат
                                 //    rText.right += 7*m_vga;
                             }
@@ -1175,14 +1176,12 @@ protected:
                             {
                                 rText.top += 4*m_vga;
                                 SelectObject(hdc, m_hFontIndex);
-                                COLORREF fgColor2 = p==m_keyCurrent ? RGB(0xFF,0xFF,0xFF) : m_config->m_colorDesc2;
-                                DrawText(hdc, p->desc2, &rText, DT_NOPREFIX | DT_RIGHT | DT_TOP, fgColor2);
+                                DrawText(hdc, p->desc2, &rText, DT_NOPREFIX | DT_RIGHT | DT_TOP, crDesc2);
                             }
                         } else if (0!=p->desc.pw) // текст вроде 'Caps'
                         {
                             SelectObject(hdc, m_hFontSmall);
-                            COLORREF fgColor2 = p==m_keyCurrent ? RGB(0xFF,0xFF,0xFF) : m_config->m_colors[p->group][0];
-                            DrawText(hdc, p->desc, &rText, DT_NOPREFIX | DT_CENTER | DT_VCENTER, fgColor2);
+                            DrawText(hdc, p->desc, &rText, DT_NOPREFIX | DT_CENTER | DT_VCENTER, crSmall);
                         }
                     }
                 }

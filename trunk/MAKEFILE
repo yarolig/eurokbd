@@ -2,7 +2,7 @@
 
 RCPFLAGS        =
 RC              =  rc
-CONVERT         = "C:\Program Files\ImageMagick-6.3.5-Q8\convert.exe"
+CONVERT         = "C:\Program Files\ImageMagick-6.4.2-Q16\convert.exe"
 
 CABWIZ          = "C:\Program Files\Microsoft Visual Studio 8\smartdevices\sdk\sdktools\cabwiz.exe"
 
@@ -47,6 +47,11 @@ SRCCPP_STARTKEY =  startkey.cpp ids.cpp
 LIBS_STARTKEY   =  coredll.lib aygshell.lib
 LFLAGS_STARTKEY = -nologo -machine:arm -incremental:no -opt:ref -subsystem:windowsce,4.20 -entry:main
 
+NAME_ARMKTEST   =  ktest-arm
+SRCCPP_ARMKTEST =  ktest.cpp ids.cpp
+LIBS_ARMKTEST   =  coredll.lib uuid.lib
+LFLAGS_ARMKTEST =  -nologo -machine:arm -incremental:no -opt:ref -subsystem:windowsce,4.20 -entry:main
+
 
 NAME_X86DLL     =  eurokbd-x86
 SRCCPP_X86DLL   =  eurokbd.cpp ids.cpp
@@ -59,16 +64,17 @@ LFLAGS_X86DLL   = -nologo -machine:i386 -incremental:no -opt:ref -dll -debug \
                     -export:DllUnregisterServer \
                     -ignore:4104
 
-NAME_X86EXE     =  ktest-x86
-SRCCPP_X86EXE   =  ktest.cpp ids.cpp
-LIBS_X86EXE     =  kernel32.lib user32.lib uuid.lib
-LFLAGS_X86EXE   = -nologo -machine:i386 -incremental:no -opt:ref -debug
+NAME_X86KTEST   =  ktest-x86
+SRCCPP_X86KTEST =  ktest.cpp ids.cpp
+LIBS_X86KTEST   =  kernel32.lib user32.lib uuid.lib
+LFLAGS_X86KTEST = -nologo -machine:i386 -incremental:no -opt:ref -debug
 
 
 all:    $(NAME_ARMDLL).dll \
         $(NAME_STARTKEY).exe \
         $(NAME_X86DLL).dll \
-        $(NAME_X86EXE).exe \
+        $(NAME_ARMKTEST).exe \
+        $(NAME_X86KTEST).exe \
         n1.2bp w1.2bp \
         iml16.png iml32.png \
         skin1.png skin1rus.png \
@@ -133,10 +139,12 @@ eurokbd-x86.rc: makefile eurokbd_rc.h iml32.bmp iml16.bmp
 
 eurokbd.rc:     makefile eurokbd_rc.h iml32.png iml16.png w1.2bp n1.2bp
 
+ktest-arm.rc:   makefile
 
 
-$(NAME_X86EXE).exe: $(SRCCPP_X86EXE:.cpp=.x86obj)
-        @$(LINK_X86) -libpath:$(LIB_X86) $(LFLAGS_X86EXE) -out:$(NAME_X86EXE).exe $(**F) $(LIBS_X86EXE)
+
+$(NAME_X86KTEST).exe: $(SRCCPP_X86KTEST:.cpp=.x86obj)
+        @$(LINK_X86) -libpath:$(LIB_X86) $(LFLAGS_X86KTEST) -out:$(NAME_X86KTEST).exe $(**F) $(LIBS_X86KTEST)
 
 $(NAME_X86DLL).dll: $(SRCCPP_X86DLL:.cpp=.x86obj) $(NAME_X86DLL).res
         @$(LINK_X86) -libpath:$(LIB_X86) $(LFLAGS_X86DLL) -out:$(NAME_X86DLL).dll $(**F) $(LIBS_X86DLL)
@@ -161,12 +169,21 @@ $(NAME_STARTKEY).exe: $(SRCCPP_STARTKEY:.cpp=.armobj)
                     $(LIBS_STARTKEY) \
                     $(**F)
 
+$(NAME_ARMKTEST).exe: $(SRCCPP_ARMKTEST:.cpp=.armobj) $(NAME_ARMKTEST).res
+        $(LINK_ARM) -libpath:$(LIB1_ARM) -libpath:$(LIB2_ARM) -libpath:$(LIB3_ARM) \
+                    $(LFLAGS_ARMKTEST) \
+                    -out:$(NAME_ARMKTEST).exe \
+                    -map:$(NAME_ARMKTEST).map \
+                    $(LIBS_ARMKTEST) \
+                    $(**F)
+
 
 clean:
         -@if exist $(NAME_ARMDLL).cab del $(NAME_ARMDLL).cab
         -@if exist $(NAME_ARMDLL).dll del $(NAME_ARMDLL).dll
         -@if exist $(NAME_X86DLL).dll del $(NAME_X86DLL).dll
-        -@if exist $(NAME_X86EXE).exe del $(NAME_X86EXE).exe
+        -@if exist $(NAME_X86KTEST).exe del $(NAME_X86KTEST).exe
+        -@if exist $(NAME_ARMKTEST).exe del $(NAME_ARMKTEST).exe
         -@if exist $(NAME_STARTKEY).exe del $(NAME_STARTKEY).exe
         -@if exist *.2bp del *.2bp
         -@if exist *.png del *.png
