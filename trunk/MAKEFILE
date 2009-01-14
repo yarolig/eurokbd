@@ -1,0 +1,183 @@
+#
+
+RCPFLAGS        =
+RC              =  rc
+CONVERT         = "C:\Program Files\ImageMagick-6.3.5-Q8\convert.exe"
+
+CABWIZ          = "C:\Program Files\Microsoft Visual Studio 8\smartdevices\sdk\sdktools\cabwiz.exe"
+
+CC_X86          =  cl
+INCLUDE_X86     = "C:\Program Files\Microsoft Visual Studio 8\VC\PlatformSDK\Include"
+LINK_X86        =  link
+LIB_X86         = "C:\Program Files\Microsoft Visual Studio 8\VC\PlatformSDK\Lib"
+DEFS_X86        = -DNDEBUG -DMEMCHECK -DUNICODE
+CPPFLAGS_X86    = -Zi -nologo -c -Osyx -Oi- -Ob2 -W3 -GAFy -GS- -GR- -EHsc -wd4996 -I$(INCLUDE_X86) $(DEFS_X86)
+
+#CC_ARM          = "C:\Program Files\Microsoft Visual Studio 8\VC\ce\bin\x86_arm\ms_cl.exe"
+CC_ARM          = "C:\Program Files\Microsoft Visual Studio 8\VC\ce\bin\x86_arm\cl.exe"
+LINK_ARM        = "C:\Program Files\Microsoft Visual Studio 8\VC\ce\bin\x86_arm\link.exe"
+INCLUDE_ARM     = "C:\Program Files\Microsoft Visual Studio 8\SmartDevices\SDK\PocketPC2003\Include"
+LIB1_ARM        = "C:\Program Files\Microsoft Visual Studio 8\VC\CE\BIN\x86_arm"
+LIB2_ARM        = "C:\Program Files\Microsoft Visual Studio 8\SmartDevices\SDK\PocketPC2003\Lib\armv4"
+LIB3_ARM        = "C:\Program Files\Microsoft Visual Studio 8\VC\ce\lib\armv4"
+!ifdef RELEASE
+DEFS_ARM        = -DNDEBUG -DUNICODE -DWIN32_PLATFORM_PSPC -DARM -D_ARM_ -DARMV4 -DUNDER_CE=0x420 -D_WIN32_WCE=0x420
+!else
+DEFS_ARM        =          -DUNICODE -DWIN32_PLATFORM_PSPC -DARM -D_ARM_ -DARMV4 -DUNDER_CE=0x420 -D_WIN32_WCE=0x420
+!endif
+
+CPPFLAGS_ARM_MS     = -nologo -c -Osyx -Oi- -Ob2 -W3 -GFy -GR- -EHsc -GS- -MT -I$(INCLUDE_ARM) $(DEFS_ARM)
+CPPFLAGS_ARM_INTEL  = -nologo -c -Osgx -Oi- -Ob2 -W3 -GFy -GR- -EHsc          -I$(INCLUDE_ARM) $(DEFS_ARM)
+CPPFLAGS_ARM        = $(CPPFLAGS_ARM_MS)
+#CPPFLAGS_ARM        = $(CPPFLAGS_ARM_INTEL)
+
+NAME_ARMDLL     =  eurokbd
+SRCCPP_ARMDLL   =  eurokbd.cpp ids.cpp
+
+LIBS_ARMDLL     =  coredll.lib aygshell.lib uuid.lib corelibc.lib ccrtrtti.lib
+#secchk.lib libcmt.lib
+LFLAGS_ARMDLL   = -nologo -machine:arm -incremental:no -opt:ref -dll -subsystem:windowsce,4.20 \
+                    -export:DllGetClassObject \
+                    -export:DllCanUnloadNow \
+                    -export:DllRegisterServer \
+                    -export:DllUnregisterServer
+
+NAME_STARTKEY   =  startkey
+SRCCPP_STARTKEY =  startkey.cpp ids.cpp
+LIBS_STARTKEY   =  coredll.lib aygshell.lib
+LFLAGS_STARTKEY = -nologo -machine:arm -incremental:no -opt:ref -subsystem:windowsce,4.20 -entry:main
+
+
+NAME_X86DLL     =  eurokbd-x86
+SRCCPP_X86DLL   =  eurokbd.cpp ids.cpp
+#crt.cpp
+LIBS_X86DLL     =  kernel32.lib user32.lib gdi32.lib comctl32.lib shlwapi.lib uuid.lib advapi32.lib
+LFLAGS_X86DLL   = -nologo -machine:i386 -incremental:no -opt:ref -dll -debug \
+                    -export:DllGetClassObject \
+                    -export:DllCanUnloadNow \
+                    -export:DllRegisterServer \
+                    -export:DllUnregisterServer \
+                    -ignore:4104
+
+NAME_X86EXE     =  ktest-x86
+SRCCPP_X86EXE   =  ktest.cpp ids.cpp
+LIBS_X86EXE     =  kernel32.lib user32.lib uuid.lib
+LFLAGS_X86EXE   = -nologo -machine:i386 -incremental:no -opt:ref -debug
+
+
+all:    $(NAME_ARMDLL).dll \
+        $(NAME_STARTKEY).exe \
+        $(NAME_X86DLL).dll \
+        $(NAME_X86EXE).exe \
+        n1.2bp w1.2bp \
+        iml16.png iml32.png \
+        skin1.png skin1rus.png \
+        skin2.png skin2rus.png
+
+cab: $(NAME_ARMDLL).cab
+
+$(NAME_ARMDLL).cab: makefile $(NAME_ARMDLL).inf $(NAME_ARMDLL).dll $(NAME_STARTKEY).exe \
+                    internet.txt lat.txt \
+                    rus.txt lat-caps.txt \
+                    skin1.png skin1rus.png \
+                    skin2.png skin2rus.png
+        @$(CABWIZ) $(NAME_ARMDLL).inf
+# /compress
+
+
+.cpp.armobj:
+        @SET INTEL_LICENSE_FILE=C:\Program Files\Common Files\Intel\Licenses
+        @$(CC_ARM) $(CPPFLAGS_ARM) $** -Fo$@
+
+.cpp.x86obj:
+        @$(CC_X86) $(CPPFLAGS_X86) $** -Fo$@
+
+.rc.res:
+        @$(RC) $(RCPFLAGS) $**
+
+n1.2bp: n1.bmp
+        @$(CONVERT) $** $@
+
+w1.2bp: w1.bmp
+        @$(CONVERT) $** $@
+
+iml16.png: iml16.bmp
+        @$(CONVERT) $** $@
+
+iml32.png: iml32.bmp
+        @$(CONVERT) $** $@
+
+skin1.png: skin1.bmp
+        @$(CONVERT) $** $@
+
+skin1rus.png: skin1rus.bmp
+        @$(CONVERT) $** $@
+
+skin2.png: skin2.bmp
+        @$(CONVERT) $** $@
+
+skin2rus.png: skin2rus.bmp
+        @$(CONVERT) $** $@
+
+
+
+startkey.cpp:   makefile eurokbd.h ids.h
+
+ids.cpp:        makefile ids.h
+
+ktest.cpp:      makefile ktest.h ids.h sip.h memcheck.h ptr.h
+
+eurokbd.cpp:    makefile eurokbd.h ids.h sip.h eurokbd_rc.h config.h eurokbd_config.h deq.h  regkey.h memcheck.h ptr.h
+
+eurokbd-x86.rc: makefile eurokbd_rc.h iml32.bmp iml16.bmp
+
+eurokbd.rc:     makefile eurokbd_rc.h iml32.png iml16.png w1.2bp n1.2bp
+
+
+
+$(NAME_X86EXE).exe: $(SRCCPP_X86EXE:.cpp=.x86obj)
+        @$(LINK_X86) -libpath:$(LIB_X86) $(LFLAGS_X86EXE) -out:$(NAME_X86EXE).exe $(**F) $(LIBS_X86EXE)
+
+$(NAME_X86DLL).dll: $(SRCCPP_X86DLL:.cpp=.x86obj) $(NAME_X86DLL).res
+        @$(LINK_X86) -libpath:$(LIB_X86) $(LFLAGS_X86DLL) -out:$(NAME_X86DLL).dll $(**F) $(LIBS_X86DLL)
+        -@if exist $(NAME_X86DLL).exp del $(NAME_X86DLL).exp
+        -@if exist $(NAME_X86DLL).lib del $(NAME_X86DLL).lib
+
+$(NAME_ARMDLL).dll: $(SRCCPP_ARMDLL:.cpp=.armobj) $(NAME_ARMDLL).res
+        $(LINK_ARM) -libpath:$(LIB1_ARM) -libpath:$(LIB2_ARM) -libpath:$(LIB3_ARM) \
+                    $(LFLAGS_ARMDLL) \
+                    -out:$(NAME_ARMDLL).dll \
+                    -map:$(NAME_ARMDLL).map \
+                    $(LIBS_ARMDLL) \
+                    $(**F)
+        -@if exist $(NAME_ARMDLL).exp del $(NAME_ARMDLL).exp
+        -@if exist $(NAME_ARMDLL).lib del $(NAME_ARMDLL).lib
+
+$(NAME_STARTKEY).exe: $(SRCCPP_STARTKEY:.cpp=.armobj)
+        $(LINK_ARM) -libpath:$(LIB1_ARM) -libpath:$(LIB2_ARM) -libpath:$(LIB3_ARM) \
+                    $(LFLAGS_STARTKEY) \
+                    -out:$(NAME_STARTKEY).exe \
+                    -map:$(NAME_STARTKEY).map \
+                    $(LIBS_STARTKEY) \
+                    $(**F)
+
+
+clean:
+        -@if exist $(NAME_ARMDLL).cab del $(NAME_ARMDLL).cab
+        -@if exist $(NAME_ARMDLL).dll del $(NAME_ARMDLL).dll
+        -@if exist $(NAME_X86DLL).dll del $(NAME_X86DLL).dll
+        -@if exist $(NAME_X86EXE).exe del $(NAME_X86EXE).exe
+        -@if exist $(NAME_STARTKEY).exe del $(NAME_STARTKEY).exe
+        -@if exist *.2bp del *.2bp
+        -@if exist *.png del *.png
+        -@if exist *.nms del *.nms
+        -@if exist *.pdb del *.pdb
+        -@if exist *.map del *.map
+        -@if exist *.ilk del *.ilk
+        -@if exist *.exp del *.exp
+        -@if exist *.lib del *.lib
+        -@if exist *.suo del *.suo
+        -@if exist *.x86obj del *.x86obj
+        -@if exist *.armobj del *.armobj
+        -@if exist *.obj del *.obj
+        -@if exist *.res del *.res
