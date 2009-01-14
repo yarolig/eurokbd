@@ -70,6 +70,7 @@ class CKbd : public IInputMethod
             bool                m_bPopupActive;
             //PWCHAR              m_pwCurrentConfigName;
             CPtr<WCHAR>         m_pwCurrentConfigName;
+            POINT               m_ptBtnDownPos;  // точка в которой сталус начал свой путь
             POINT               m_ptCursorPos;   // т.к. в Windows Mobile не работает GetCursorPos, приходицца делать вот так :(
             POINT               m_ptPopShift;
             BYTE                m_vga; // 1 or 2, масштабирующий коэфф
@@ -127,6 +128,10 @@ public:
         m_nAutorepeatDelay  = 2000;
         m_nAutorepeatPeriod =  200;
 
+        m_ptBtnDownPos.x = 0;
+        m_ptBtnDownPos.y = 0;
+        m_ptCursorPos.x  = 0;
+        m_ptCursorPos.y  = 0;
         LoadConfig(L"lat");
     }
 
@@ -1043,8 +1048,8 @@ protected:
 
             // еще одно смещение, чтобы середина при появлении попапа середина кнопки оказалась под курсором
             POINT ptMain = {
-                m_ptCursorPos.x - ((m_keyCurrent->right + m_keyCurrent->left)/2)*m_vga,
-                m_ptCursorPos.y - ((m_keyCurrent->bottom + m_keyCurrent->top)/2)*m_vga
+                m_ptBtnDownPos.x - ((m_keyCurrent->right + m_keyCurrent->left)/2)*m_vga,
+                m_ptBtnDownPos.y - ((m_keyCurrent->bottom + m_keyCurrent->top)/2)*m_vga
                 };
 
             SetWindowPos( m_hwndPop,
@@ -1191,6 +1196,7 @@ protected:
         case WM_LBUTTONDBLCLK:
         case WM_LBUTTONDOWN:
             SaveCursorPos(m_hwndMain, lParam);
+            m_ptBtnDownPos = m_ptCursorPos;
 
             if(m_keyCurrent==0)
             {
