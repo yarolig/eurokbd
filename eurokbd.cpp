@@ -928,9 +928,7 @@ protected:
             }
 
             ReleaseCapture();
-            SetWindowPos(   m_hwndPop, 0,
-                            0, 0, 0, 0,
-                            SWP_NOMOVE | SWP_NOSIZE | SWP_HIDEWINDOW);
+            ShowWindow(m_hwndPop, SW_HIDE);
             m_bPopupActive = false;
             m_keyCurrent = 0;
             m_subkeyCurrent = 0;
