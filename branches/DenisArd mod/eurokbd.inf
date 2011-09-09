@@ -10,8 +10,8 @@ InstallDir="%CE1%\Euro%AppName%"
 
 [Strings]
 Developer="Euro"
-AppVer="0.01"
-AppDate="26.09.2007"
+AppVer="2.01"
+AppDate="4.09.2011"
 
 [CEDevice]
 ProcessorType=2577
@@ -36,6 +36,13 @@ BuildMax=0xE0000000
 "skin2.png"=1
 "skin1rus.png"=1
 "skin2rus.png"=1
+"skin lat.png"=1
+"skin rus.png"=1
+"digit.txt"=1
+"lat_.txt"=1
+"lat_land.txt"=1
+"rus_.txt"=1
+"rus_land.txt"=1
 
 [DefaultInstall]
 CEShortcuts=Shortcuts
@@ -55,10 +62,18 @@ Files.InstallDir=0,%InstallDir%
 "lat-landscape.txt",,,0x40000000
 "rus.txt",,,0x40000000
 "lat-caps.txt",,,0x40000000
+"digit.txt",,,0x40000000
+"lat_.txt",,,0x40000000
+"lat_land.txt",,,0x40000000
+"rus_.txt",,,0x40000000
+"rus_land.txt",,,0x40000000
+
 "skin1.png",,,0x40000000
 "skin2.png",,,0x40000000
 "skin1rus.png",,,0x40000000
 "skin2rus.png",,,0x40000000
+"skin lat.png",,,0x40000000
+"skin rus.png",,,0x40000000
 
 
 [Shortcuts]

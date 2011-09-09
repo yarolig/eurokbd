@@ -336,6 +336,8 @@ public:
     CPtr<WCHAR>         m_pwFontIndex;
     LONG                m_iFontIndex;
     bool                m_bFontIndexBold;
+    
+    bool                m_GesturesOn;
 
 
 protected:
@@ -491,6 +493,8 @@ protected:
 
         m_colorDesc  = RGB(0x99, 0x99, 0x99);
         m_colorDesc2 = RGB(0x00, 0x99, 0x00);
+        
+        m_GesturesOn=false;
     }
 
 
@@ -672,7 +676,10 @@ protected:
             m_pwFontIndex       = trystr(ptrs[1], lens[1]);
             m_iFontIndex        = tryint(ptrs[2], lens[2]);
             m_bFontIndexBold    = CMP(ptrs[3], lens[3], L"BOLD", 4);
-        } else
+        } else if( CMP(ptrs[0], lens[0], L"GESTURES", 8))
+        {
+            m_GesturesOn    = CMP(ptrs[1], lens[1], L"ON", 2);
+        }else
         {
             int group = strToSkGroup(ptrs[0], lens[0]);
             if(group!=-1)
