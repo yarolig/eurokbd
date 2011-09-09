@@ -1,0 +1,10 @@
+#include <windows.h>
+#include "eurokbd_rc.h"
+
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+
+//IDB_BTN1                BITMAP  DISCARDABLE     "btn1.bmp"
+IDB_WIDE1               BITMAP  DISCARDABLE     "w1.2bp"
+IDB_NARROW1             BITMAP  DISCARDABLE     "n1.2bp"
+IDB_SYMBOLS16           GIF     DISCARDABLE     "iml16.png"
+IDB_SYMBOLS32           GIF     DISCARDABLE     "iml32.png"
