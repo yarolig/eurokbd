@@ -186,7 +186,7 @@ clean:
         -@if exist $(NAME_ARMKTEST).exe del $(NAME_ARMKTEST).exe
         -@if exist $(NAME_STARTKEY).exe del $(NAME_STARTKEY).exe
         -@if exist *.2bp del *.2bp
-        -@if exist *.png del *.png
+#        -@if exist *.png del *.png
         -@if exist *.nms del *.nms
         -@if exist *.pdb del *.pdb
         -@if exist *.map del *.map

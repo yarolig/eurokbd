@@ -22,11 +22,14 @@ static WCHAR*     g_pwDllFile;
 static WCHAR*     g_pwDllDir;
 
 
-static void DrawButton(HDC hdc, const RECT& r, HBRUSH hBrushBg, HPEN hPenTL, HPEN hPenBR)
+static void DrawButton(HDC hdc, RECT& r, HBRUSH hBrushBg /*,HPEN hPenTL, HPEN hPenBR*/)
 {
     FillRect(hdc, &r, hBrushBg);
-
-    const POINT pntsTL[3] = {
+	//RECT r_ = r;
+    //HBRUSH oldBr = HBRUSH(SelectObject(hdc, hBrushBg));
+    DrawEdge(hdc, &r, BDR_RAISEDINNER/*|BDR_RAISEDOUTER*/, BF_RECT|BF_SOFT);
+	//SelectObject(hdc, oldBr);
+    /*const POINT pntsTL[3] = {
         {r.left,    r.bottom-2},
         {r.left,    r.top},
         {r.right-1, r.top},
@@ -40,7 +43,7 @@ static void DrawButton(HDC hdc, const RECT& r, HBRUSH hBrushBg, HPEN hPenTL, HPE
         {r.right-1, r.top-1},
     };
     SelectObject(hdc, hPenBR);
-    Polyline(hdc, pntsBR, 3);
+    Polyline(hdc, pntsBR, 3);*/
 }
 
 
@@ -224,10 +227,24 @@ protected:
             case 0x2193: i=2; break; // downward arrow
             case 0x0009: i=5; break; // tab
             case 0x0008: i=6; break; // backspace
-            default:
-                SetTextColor(hdc, fgColor);
+			case 0x21DE: i=9; break; // PgUp
+			case 0x21DF: i=10; break; // PgDwn
+
+
+			default:    {	SetTextColor(hdc, fgColor);
+							if (kd.w > 0x1F) 
+							{ 
                 ::DrawText(hdc, (LPCWSTR)&kd.w, 1, lpRect, uFormat);
-                return;
+							}
+							else 
+							{
+								WCHAR s[2]=L"^";
+								s[1]=kd.w+0x40;
+								::DrawText(hdc, (LPCWSTR)&s, 2, lpRect, uFormat);
+							}
+							return;
+
+						};
             }
 
             if( GetRValue(fgColor)+GetGValue(fgColor)+GetBValue(fgColor) > 3*128 ) // светлый цвет
@@ -237,8 +254,8 @@ protected:
 
             HIMAGELIST hil;
             int n;
-            if(lpRect->bottom-lpRect->top < 18 ||
-               lpRect->right-lpRect->left < 18 )
+			if((lpRect->bottom-lpRect->top)/(((uFormat & 0xC) == DT_TOP)?2:1) < 18 ||
+               (lpRect->right-lpRect->left)/(((uFormat & 0x3) == DT_RIGHT)?2:1) < 18 )
             {
                 hil = m_hilSymbols16;
                 n = 16;
@@ -248,8 +265,18 @@ protected:
                 n = 32;
             }
             if(hil)
-            {
-                ImageList_Draw(hil, i, hdc, (lpRect->left+lpRect->right-n)/2, (lpRect->bottom+lpRect->top-n)/2, ILD_TRANSPARENT);
+            {int x, y;
+			 switch (uFormat & 0x3){
+			  case DT_LEFT:  { x=min(lpRect->left,(lpRect->left+lpRect->right-n)/2);break;}
+			  case DT_RIGHT: { x=max(lpRect->right-n,(lpRect->left+lpRect->right-n)/2);break;}
+			  default: {x=(lpRect->left+lpRect->right-n)/2;}
+			 };
+			 switch (uFormat & 0xC){
+			  case DT_TOP:   { y=min(lpRect->top,(lpRect->bottom+lpRect->top-n)/2);break;}
+			  case DT_BOTTOM:{ y=max(lpRect->bottom-n,(lpRect->bottom+lpRect->top-n)/2);break;}
+			  default: {y=(lpRect->bottom+lpRect->top-n)/2;}
+			 };
+			 ImageList_Draw(hil, i, hdc, x, y, ILD_TRANSPARENT);
             } else
             {
                 SetTextColor(hdc, fgColor);
@@ -410,8 +437,16 @@ protected:
         } else if(group==SK_GROUP_CONTROL)
         {
             m_pIMCallback->SendVirtualKey(VK_CONTROL, KEYEVENTF_SILENT);
-            m_pIMCallback->SendVirtualKey(vk, KEYEVENTF_SILENT);
-            m_pIMCallback->SendVirtualKey(vk, KEYEVENTF_SILENT|KEYEVENTF_KEYUP);
+            if( data.w == 0x0000) // не-буква, а стрелка, F1, ...
+		      {m_pIMCallback->SendVirtualKey(vk, KEYEVENTF_SILENT);
+               m_pIMCallback->SendVirtualKey(vk, KEYEVENTF_SILENT|KEYEVENTF_KEYUP);
+              } else if( data.w <= 0xFFFF)
+			  {
+				UINT uShift = KeyStateDownFlag|KeyShiftAnyCtrlFlag;
+				m_pIMCallback->SendCharEvents(vk, uShift, 1, &uShift, &data.w);
+				uShift = KeyShiftNoCharacterFlag|KeyStatePrevDownFlag;
+				m_pIMCallback->SendCharEvents(vk, uShift, 1, &uShift, &data.w);
+			  };
             m_pIMCallback->SendVirtualKey(VK_CONTROL, KEYEVENTF_SILENT|KEYEVENTF_KEYUP);
         } else if(group==SK_GROUP_ALT)
         {
@@ -443,16 +478,16 @@ protected:
             // немного магии
             if( group==SK_GROUP_LATIN &&
                 m_pwCurrentConfigName &&
-                0==wcscmp(m_pwCurrentConfigName.ptr(),L"rus") )
+                0==wcsncmp(m_pwCurrentConfigName.ptr(),L"rus",3) )
             {
                 //D(L"LoadConfig(L'lat');");
-                LoadConfig(L"lat");
+				LoadConfig((GetSystemMetrics(SM_CXSCREEN)>GetSystemMetrics(SM_CYSCREEN))?L"lat_land":L"lat");
             } else if(  group==SK_GROUP_CYRILLIC &&
                         m_pwCurrentConfigName &&
-                        0==wcscmp(m_pwCurrentConfigName.ptr(),L"lat") )
+                        0==wcsncmp(m_pwCurrentConfigName.ptr(),L"lat",3) )
             {
                 //D(L"LoadConfig(L'rus');");
-                LoadConfig(L"rus");
+				LoadConfig((GetSystemMetrics(SM_CXSCREEN)>GetSystemMetrics(SM_CYSCREEN))?L"rus_land":L"rus");
             }
         } else
         {
@@ -765,10 +800,10 @@ protected:
             assert(hBrush);
             FillRect(hdc, &hdc.rect(), hBrush);
 
-            CGdiObj<HPEN> hPenTL   ( CreatePen(PS_SOLID, 1, RGB(0xCC,0xCC,0xCC)));
-            assert(hPenTL);
-            CGdiObj<HPEN> hPenBR   ( CreatePen(PS_SOLID, 1, RGB(0x66,0x66,0x66)));
-            assert(hPenBR);
+            //CGdiObj<HPEN> hPenTL   ( CreatePen(PS_SOLID, 1, RGB(0xCC,0xCC,0xCC)));
+            //assert(hPenTL);
+            //CGdiObj<HPEN> hPenBR   ( CreatePen(PS_SOLID, 1, RGB(0x66,0x66,0x66)));
+            //assert(hPenBR);
 
             InitFonts();
 
@@ -797,7 +832,7 @@ protected:
                     CGdiObj<HBRUSH> hBrushBg ( CreateSolidBrush(crBack) );
                     assert(hBrushBg);
                     // если нет обоев
-                    DrawButton(hdc, r, hBrushBg, hPenTL, hPenBR);
+                    DrawButton(hdc, r, hBrushBg/*, hPenTL, hPenBR*/);
 
                     RECT rect = { r.left+1, r.top+1, r.right-m_vga, r.bottom-1 };
                     if( p->group==SK_GROUP_SMALL ||
@@ -834,7 +869,7 @@ protected:
 
                 CGdiObj<HBRUSH> hBrushBg ( CreateSolidBrush(crBack) );
                 assert(hBrushBg);
-                DrawButton(hdc, r, hBrushBg, hPenTL, hPenBR);
+                DrawButton(hdc, r, hBrushBg/*, hPenTL, hPenBR*/);
 
                 RECT rect = { r.left+2*m_vga, r.top+1, r.right-1*m_vga, r.bottom-1 };
                 if( m_keyCurrent->group==SK_GROUP_SMALL ||
@@ -1131,10 +1166,10 @@ protected:
 
                 //CGdiObj<HBRUSH>  hBrushBg = (HBRUSH)GetStockObject(WHITE_BRUSH);
                 //assert(hBrushBg);
-                CGdiObj<HPEN>   hPenTL   ( CreatePen(PS_SOLID, 1, RGB(0xCC,0xCC,0xCC)) );
-                assert(hPenTL);
-                CGdiObj<HPEN>   hPenBR   ( CreatePen(PS_SOLID, 1, RGB(0x66,0x66,0x66)) );
-                assert(hPenBR);
+                //CGdiObj<HPEN>   hPenTL   ( CreatePen(PS_SOLID, 1, RGB(0xCC,0xCC,0xCC)) );
+                //assert(hPenTL);
+                //CGdiObj<HPEN>   hPenBR   ( CreatePen(PS_SOLID, 1, RGB(0x66,0x66,0x66)) );
+                //assert(hPenBR);
 
                 InitFonts();
                 SetBkMode(hdc, TRANSPARENT);
@@ -1157,11 +1192,11 @@ protected:
                         {
                             CGdiObj<HBRUSH> hBrushBg2 ( CreateSolidBrush(crBackground) );
                             assert(hBrushBg2);
-                            DrawButton(hdc, r0, hBrushBg2, hPenTL, hPenBR);
+                            DrawButton(hdc, r0, hBrushBg2/*, hPenTL, hPenBR*/);
                         }
 
                         RECT rText = { r0.left+3*m_vga, r0.top, r0.right-1*m_vga, r0.bottom-1*m_vga };
-                        if (0!=p->data.pw)
+						if ((0!=p->data.pw)&&(p->vk!=_VK_MOD)) //для клавиши MOD data не выводим на клавишу, т.к. поле используется для имени файла раскладки
                         {
                             SelectObject(hdc, m_hFontBig);
                             DrawText(hdc, p->data, &rText, DT_NOPREFIX | DT_BOTTOM | DT_LEFT, crFontBig);
@@ -1177,9 +1212,9 @@ protected:
                             }
                             if (0!=p->desc2.pw) // знак из другого алфавита
                             {
-                                rText.top += 4*m_vga;
+                               // rText.top += 4*m_vga;
                                 SelectObject(hdc, m_hFontIndex);
-                                DrawText(hdc, p->desc2, &rText, DT_NOPREFIX | DT_RIGHT | DT_TOP, crDesc2);
+                                DrawText(hdc, p->desc2, &rText, DT_NOPREFIX | DT_RIGHT | DT_BOTTOM, crDesc2); // выводим надпись внизу клавиши
                             }
                         } else if (0!=p->desc.pw) // текст вроде 'Caps'
                         {
@@ -1208,7 +1243,7 @@ protected:
                 {
                     m_keyCurrent = pKey;
                     if(0==m_nPopupDelay ||
-                       m_keyCurrent->vk==_VK_MOD ||
+						(m_keyCurrent->vk==_VK_MOD)&&(m_keyCurrent->data.pw==0) ||
                        m_keyCurrent->vk==_VK_FN )
                     {
                         PopUp();
@@ -1288,8 +1323,48 @@ protected:
                             m_keyCurrent->bottom*m_vga };
                 InvalidateRect(m_hwndMain, &r, FALSE);
 
-                SendKey(m_keyCurrent->vk, m_keyCurrent->data, m_keyCurrent->group);
-
+                short x = LOWORD(lParam);
+                short y = HIWORD(lParam);
+				if (m_keyCurrent->vk==_VK_MOD)
+				    {LoadConfig(m_keyCurrent->data.pw);}
+				else
+				{ KEYENTRY* pKey = GetKeyFromQVGACoord( x/m_vga, y/m_vga );
+                if (( m_keyCurrent != pKey )&& m_config->m_GesturesOn)
+                  { switch (GetGesture( x/m_vga, y/m_vga))
+					{
+					  //case 0: BOX(L"GetGesture",L"%i, %i 0", x, y); break;
+					  case 1: {keydata data = m_keyCurrent->data;
+						       WCHAR*  p = 0;
+						      if( data.w == 0x0000) // не-буква, а стрелка, F1, ...
+							    {SendKey(m_keyCurrent->vk, data, SK_GROUP_SHIFT);}
+							  else 							    
+							    {if (data.w > 0xffff)
+								  {p = new WCHAR[lstrlen(data.pw)+1];
+							       data.pw = lstrcpy(p,data.pw);
+							      };
+						          data.pw = CharUpper(data.pw);
+								  if ((data.w == m_keyCurrent->data.w)&&(m_keyCurrent->desc.w))
+								    {data = m_keyCurrent->desc;
+								     if (data.w > 0xffff)
+									   {while ((*(data.pw)==L' ')&& *(data.pw)) data.pw++;
+									    //data.w = uint(*(data.pw));
+									   };
+									 };
+                                  SendKey(m_keyCurrent->vk, data, m_keyCurrent->group);
+								  delete [] p;
+								  };
+							  break;};
+		              case 2: SendText(L"\b"); break;
+				      case 3: SendText(L" ");  break;
+					  case 4: SendText(L"\r"); break;
+					  case 0:
+					  case 5: SendKey(m_keyCurrent->vk, m_keyCurrent->data, m_keyCurrent->group);
+					}
+                  } else
+				  { 
+				    SendKey(m_keyCurrent->vk, m_keyCurrent->data, m_keyCurrent->group);
+				  };
+				};
                 m_keyCurrent = 0;
             }
             return 0;
@@ -1303,14 +1378,14 @@ protected:
                     assert(GetCapture()==m_hwndMain);
 
                     // если мышка уехала за пределы key на котором она была нажата ...
-                    int x = LOWORD(lParam);
-                    int y = HIWORD(lParam);
+                    short x = LOWORD(lParam);
+                    short y = HIWORD(lParam);
                     KEYENTRY* pKey = GetKeyFromQVGACoord( x/m_vga, y/m_vga );
                     if( m_keyCurrent != pKey )
                     {
                         KillTimer(m_hwndMain, IDT_POPUP_DELAY);
 
-                        ReleaseCapture();
+                      //  ReleaseCapture();
 
                         // потому что кнопка была чёрной
                         RECT r = {  m_keyCurrent->left*m_vga,
@@ -1319,7 +1394,11 @@ protected:
                                     m_keyCurrent->bottom*m_vga };
                         InvalidateRect(m_hwndMain, &r, FALSE);
 
-                        PopUp();
+                        if (!m_config->m_GesturesOn || GetGesture(x/m_vga, y/m_vga)==5)
+						  {   //жесты запрещены или диагональный жест
+						    ReleaseCapture();
+						    PopUp();
+						  };
                     }
                 }
             }
@@ -1511,6 +1590,7 @@ public:
         return E_NOTIMPL;
     }
 
+	unsigned char GetGesture(short x, short y);
 };
 const WCHAR     CKbd::s_szMainWndClassName[] = L"eurokbd_main";
 const WCHAR     CKbd::s_szPopWndClassName[]  = L"eurokbd_pop";
@@ -1666,4 +1746,25 @@ BOOL WINAPI DllMain(HANDLE hInstance, DWORD dwReason, LPVOID /*lpReserved*/)
         }
     }
     return TRUE;
+}
+int sqr(const short x) {return x*x;};
+
+BYTE CKbd::GetGesture(short x, short y)
+{	POINT pt = {m_ptBtnDownPos.x/m_vga,m_ptBtnDownPos.y/m_vga};
+    ScreenToClient(m_hwndMain,&pt);
+	int d = sqr(x - pt.x) + sqr(y - pt.y); //квадрат расстояния от точки касания
+    //BOX(L"GetGesture", L"%d %d %d %d %d", d, m_ptBtnDownPos.x, m_ptBtnDownPos.y,x,y);
+	if (d < 400) { return 0;};
+	if (y < m_keyCurrent->top)
+	  { return ((x > m_keyCurrent->left)&& (x < m_keyCurrent->right))?1:5;}
+	else 
+	  { if (y < m_keyCurrent->bottom)
+	//жест влево
+	    { if ((x < m_keyCurrent->left)) 
+	      { return 2;//SendText(L"\b");
+	      } else 
+	      { return (x > m_keyCurrent->right)?3:0;}//жест вправо
+	    }	else 
+	    { return ((x > m_keyCurrent->left)&& (x < m_keyCurrent->right))?4:5;};
+	  };
 }

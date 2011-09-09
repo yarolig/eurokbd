@@ -1,0 +1,481 @@
+﻿#			
+# этот файл должен быть в кодировке UTF16 или UTF8			
+#			
+
+# картинки (не обязательно)			
+# SKINQVGA	"skin lat.png"
+GESTURES ON
+
+# размер клавиатуры для QVGA, для VGA умножается на 2			
+SIZE		400	75
+
+# размер и цвет бордюра попапа			
+POPBORDER	1 1 1 1	0xcccccc	
+
+# цвета кнопок на попапе			
+LATIN		0xFFFFFF	0x555555
+LATIN_EX	0x000000	0xFFFFFF	
+DIGIT		0xffff11	0x404040
+SMALL		0xaaffaa	0x333344
+CYRILLIC	0xffffff	0x223322	
+CYR_EX		0x000000	0x669966
+GREEK		0x000000	0xFFFF00
+THAI		0xFF0000	0x444466
+ARABIC		0x000000	0xFFFFFF
+HEBREW		0x000000	0xFFFFFF
+CONTROL		0xffffff	0x553333
+ALT		0x000000	0xFF00FF
+SHIFT		0xffffff	0x330033
+
+# цвета мелких буковок на кнопках			
+DESC		0xff1111	0x559900
+
+# шрифты (размеры для QVGA, для VGA умножаются на 2)			
+FONT_BIG	"Tahoma"	14
+FONT_SMALL	"Tahoma"	11
+FONT_INDEX	"Tahoma"	11
+
+########################################################################									
+#§¶									
+#	vk	data	X1	Y1	X2	Y2	group	desc	desc2
+
+=	'Q'	'й'	0	0	24	25	CYRILLIC	"  1"	"! "
++	'Q'	'Й'	0	-50	27	0	CYRILLIC
++	0x0D	0x0D	0	25	27	75	THAI
++	0x20	0x20	25	-3	100	28	THAI
++	'1'	'1'	27	-50	63	-3	DIGIT
++	'1'	'!'	63	-50	100	-3	DIGIT
++	'Q'	0x11	27	28	63	75	CONTROL	"Ctrl+Q"
++	'1'	0	63	28	100	75	CONTROL	"Ctrl+1"		
+
+=	'W'	'ц'	24	0	48	25	CYRILLIC	"  2"	'"'	
++	'W'	'Ц'	-3	-50	27	0	CYRILLIC
++	0x0D	0x0D	-3	25	27	75	THAI
++	0x20	0x20	25	-3	100	28	THAI
++	0x08	0x08	-25	0	0	25	THAI
++	'2'	'2'	27	-50	63	-3	DIGIT
++	'2'	'"'	63	-50	100	-3	DIGIT
++	'W'	0x17	27	28	63	75	CONTROL	"Ctrl+W"
++	'2'	0	63	28	100	75	CONTROL	"Ctrl+2"		
+
+=	'E'	'у'	48	0	72	25	CYRILLIC	"  3"	"№"	
++	'E'	'У'	-3	-50	27	0	CYRILLIC
++	0x0D	0x0D	-3	25	27	75	THAI
++	0x20	0x20	25	-3	100	28	THAI
++	0x08	0x08	-50	-3	0	28	THAI				
++	'3'	'3'	27	-50	63	-3	DIGIT
++	'3'	'№'	63	-50	100	-3	DIGIT
++	'E'	0x05	27	28	63	75	CONTROL	"Ctrl+E"
++	'3'	0	63	28	100	75	CONTROL	"Ctrl+3"		
+
+=	'R'	'к'	72	0	96	25	CYRILLIC	"  4"	";"
++	'R'	'К'	-3	-50	27	0	CYRILLIC
++	0x0D	0x0D	-3	25	27	75	THAI
++	0x20	0x20	25	-3	100	28	THAI
++	0x08	0x08	-50	0	0	25	THAI
++	'4'	'4'	27	-50	63	-3	DIGIT
++	'4'	';'	63	-50	100	-3	DIGIT
++	'R'	0x12	27	28	63	75	CONTROL	"Ctrl+R"
++	'4'	0	63	28	100	75	CONTROL	"Ctrl+4"		
+
+=	'T'	'е'	96	0	120	25	CYRILLIC	"  5"	"%"
++	'T'	'Е'	-3	-50	27	0	CYRILLIC			
++	0xC0	'Ё'	-75	-50	-3	-3	CYR_EX			
++	0xC0	'ё'	-75	28	-3	75	CYR_EX			
++	0x0D	0x0D	-3	25	27	75	THAI				
++	0x20	0x20	25	-3	100	28	THAI
++	0x08	0x08	-75	-3	0	28	THAI				
++	'5'	'5'	27	-50	63	-3	DIGIT				
++	'5'	'%'	63	-50	100	-3	DIGIT				
++	'T'	0x14	27	28	63	75	CONTROL	"Ctrl+T"		
++	'5'	0	63	28	100	75	CONTROL	"Ctrl+5"		
+
+
+=	'Y'	'н'	120	0	144	25	CYRILLIC	"  6"	": "
++	'Y'	'Н'	-3	-50	27	0	CYRILLIC
++	0x0D	0x0D	-3	25	27	75	THAI
++	0x20	0x20	25	-3	100	28	THAI
++	0x08	0x08	-50	0	0	25	THAI
++	'6'	'6'	27	-50	63	-3	DIGIT
++	'6'	':'	63	-50	100	-3	DIGIT
++	'Y'	0x19	27	28	63	75	CONTROL	"Ctrl+Y"
++	'6'	0	63	28	100	75	CONTROL	"Ctrl+6"		
+
+=	'U'	'г'	144	0	168	25	CYRILLIC	"  7"	"?"
++	'U'	'Г'	-3	-50	27	0	CYRILLIC
++	0x0D	0x0D	-3	25	27	75	THAI
++	0x20	0x20	25	-3	100	28	THAI
++	0x08	0x08	-50	-3	0	28	THAI
++	'7'	'7'	27	-50	63	-3	DIGIT
++	'7'	'?'	63	-50	100	-3	DIGIT
++	'U'	0x15	27	28	63	75	CONTROL	"Ctrl+U"
++	'7'	0	63	28	100	75	CONTROL	"Ctrl+7"		
+
+=	'I'	'ш'	168	0	192	25	CYRILLIC	"  8"	"* "
++	'I'	'Ш'	-3	-50	27	0	CYRILLIC
++	0x0D	0x0D	-3	25	27	75	THAI
++	0x20	0x20	25	-3	100	28	THAI
++	0x08	0x08	-50	-3	0	28	THAI
++	'8'	'8'	27	-50	63	-3	DIGIT
++	'8'	'*'	63	-50	100	-3	DIGIT
++	'I'	0x09	27	28	63	75	CONTROL	"Ctrl+I"
++	'8'	0	63	28	100	75	CONTROL	"Ctrl+8"		
+
+=	'O'	'щ'	192	0	216	25	CYRILLIC	"  9"	"( "
++	'O'	'Щ'	-3	-50	27	0	CYRILLIC
++	0x0D	0x0D	-3	25	27	75	THAI
++	0x20	0x20	25	-3	100	28	THAI
++	0x08	0x08	-50	-3	0	28	THAI
++	'9'	'9'	27	-50	63	-3	DIGIT
++	'9'	'('	-40	-50	-3	-3	DIGIT
++	'O'	0x0f	-40	28	-3	75	CONTROL	"Ctrl+O"
++	'9'	0	27	28	63	75	CONTROL	"Ctrl+9"
+
+=	'P'	'з'	216	0	240	25	CYRILLIC	"  0"	") "
++	'P'	'З'	-3	-50	27	0	CYRILLIC
++	0x0D	0x0D	-3	25	27	75	THAI
++	0x20	0x20	25	-3	63	28	THAI
++	0x08	0x08	-50	-3	0	28	THAI
++	'0'	'0'	27	-50	63	-3	DIGIT
++	'0'	')'	-40	-50	-3	-3	DIGIT
++	'0'	0	27	28	63	75	CONTROL	"Ctrl+0"
++	'P'	0x10	-39	28	-3	75	CONTROL	"Ctrl+P"
+
+=	0xDB	'х'	240	0	264	25	CYRILLIC	'-'
++	0xDB	'Х'	-3	-50	27	0	CYRILLIC
++	0x0D	0x0D	0	25	27	75	THAI
++	0x20	0x20	25	-3	80	28	THAI
++	0x08	0x08	-50	-3	0	28	THAI
+
++	0xBD	'-'	-40	-50	-3	-3	DIGIT	
++	0xBD	'_'	27	-50	63	-3	DIGIT
+
+
+=	0xDD	'ъ'	264	0	291	25	CYRILLIC	"=+"
++	0xDD	'Ъ'	-3	-50	27	0	CYRILLIC
++	0x0D	0x0D	0	25	27	75	THAI
++	0x20	0x20	25	-3	56	28	THAI
++	0x08	0x08	-75	-3	0	28	THAI
++	0xBB	'='	-40	-50	-3	-3	DIGIT	
++	0xBB	'+'	27	-50	56	-3	DIGIT
+		
+
+=	0x26	0	292	0	320	25	SMALL	'↑'	"Pg↑"
++	0x26	0	-3	-50	27	0	SHIFT	"Sh↑"
++	0x21	0	-40	-3	-3	28	SMALL	"PgUp"
++	0x21	0	-40	-50	-3	-3	SHIFT	"ShPgUp"
+
+=	'7'	'7'	321	0	347	25	DIGIT	'°'
++	'7'	'°'	-3	-50	27	0	DIGIT
++	0x0D	0x0D	0	25	27	75	THAI
++	0x20	0x20	25	0	75	25	THAI
++	0x08	0x08	-50	0	0	25	THAI
+
+=	'8'	'8'	348	0	374	25	DIGIT '‰'
++	'8'	"‰"	-3	-50	27	0	DIGIT
++	0x0D	0x0D	-3	25	27	75	THAI
++	0x20	0x20	25	0	50	25	THAI
++	0x08	0x08	-50	0	0	25	THAI
+
+=	'9'	'9'	375	0	400	25	DIGIT
++	0x0D	0x0D	-3	25	27	75	THAI
++	0x08	0x08	-50	0	0	25	THAI
+########################################################################							
+=	'A'	'ф'	0	25	24	50	CYRILLIC	0x09
++	'A'	'Ф'	0	-50	27	0	CYRILLIC
++	0x0D	0x0D	0	25	27	75	THAI
++	0x20	0x20	25	-3	100	28	THAI
++	'A'	0x01	27	28	100	75	CONTROL	"Ctrl+A"
++	0x1B	0	27	-50	63	-3	SMALL	"Esc"			
++	0x09	0x09	63	-50	100	-3	SMALL				
+
+=	'S'	'ы'	24	25	48	50	CYRILLIC
++	'S'	'Ы'	-3	-50	27	0	CYRILLIC
++	0x0D	0x0D	-3	25	27	75	THAI
++	0x20	0x20	25	0	100	25	THAI
++	0x08	0x08	-25	0	0	25	THAI
++	'S'	0x13	27	25	100	75	CONTROL	"Ctrl+S"
+
+=	'D'	'в'	48	25	72	50	CYRILLIC
++	'D'	'В'	-3	-50	27	0	CYRILLIC
++	0x0D	0x0D	-3	25	27	75	THAI
++	0x20	0x20	25	0	100	25	THAI
++	0x08	0x08	-75	-3	0	28	THAI				
++	'D'	0x04	27	25	100	75	CONTROL	"Ctrl+D"
+
+=	'F'	'а'	72	25	96	50	CYRILLIC
++	'F'	'А'	-3	-50	27	0	CYRILLIC
++	0x0D	0x0D	-3	25	27	75	THAI
++	0x20	0x20	25	0	100	25	THAI
++	0x08	0x08	-50	0	0	25	THAI
++	'F'	0x06	27	25	100	75	CONTROL	"Ctrl+F"
+
+=	'G'	'п'	96	25	120	50	CYRILLIC
++	'G'	'П'	-3	-50	27	0	CYRILLIC
++	0x0D	0x0D	-3	25	27	75	THAI
++	0x20	0x20	25	0	100	25	THAI
++	0x08	0x08	-50	0	0	25	THAI
++	'G'	0x07	27	25	100	75	CONTROL	"Ctrl+G"
+
+=	'H'	'р'	120	25	144	50	CYRILLIC
++	'H'	'Р'	-3	-50	27	0	CYRILLIC
++	0x0D	0x0D	-3	25	27	75	THAI
++	0x20	0x20	25	0	100	25	THAI
++	0x08	0x08	-50	0	0	25	THAI
++	'H'	0x08	27	25	100	75	CONTROL	"Ctrl+H"
+
+=	'J'	'о'	144	25	168	50	CYRILLIC
++	'J'	'О'	-3	-50	27	0	CYRILLIC
++	0x0D	0x0D	-3	25	27	75	THAI
++	0x20	0x20	25	0	100	25	THAI
++	0x08	0x08	-50	0	0	25	THAI
++	'J'	0x0a	27	25	100	75	CONTROL	"Ctrl+J"
+
+=	'K'	'л'	168	25	192	50	CYRILLIC
++	'K'	'Л'	-3	-50	27	0	CYRILLIC
++	0x0D	0x0D	-3	25	27	75	THAI
++	0x20	0x20	25	0	75	25	THAI
++	0x08	0x08	-50	0	0	25	THAI
++	'K'	0x0b	27	25	75	75	CONTROL	"Ctrl+K"
+
+=	'L'	'д'	192	25	216	50	CYRILLIC
++	'L'	'Д'	-3	-50	27	0	CYRILLIC
++	0x0D	0x0D	-3	25	27	75	THAI
++	0x20	0x20	25	0	50	25	THAI
++	0x08	0x08	-50	0	0	25	THAI
++	'L'	0x0c	27	25	50	75	CONTROL	"Ctrl+L"
+
+=	0xBA	'ж'	216	25	240	50	CYRILLIC	
++	0xBA	'Ж'	-3	-50	25	0	CYRILLIC
++	0x0D	0x0D	-3	25	25	75	THAI
++	0x08	0x08	-50	0	0	25	THAI
+
+=	0xDE	'э'	240	25	264	50	CYRILLIC	
++	0xDE	'Э'	-3	-50	25	0	CYRILLIC
++	0x0D	0x0D	-3	25	25	75	THAI
++	0x08	0x08	-50	0	0	25	THAI
+
+=	0x25	0	264	25	292	50	SMALL	'←'	"Hm"
++	0x25	0	-3	-50	27	0	SHIFT	"Sh←"
++	0x24	0	-40	-3	-3	28	SMALL	"Hm"
++	0x24	0	-40	-50	-3	-3	SHIFT	"ShHome"
+
+=	0x27	0	292	25	320	50	SMALL	'→'	"End"
++	0x27	0	-3	-50	27	0	SHIFT	"Sh→"
++	0x23	0	-40	-3	-3	28	SMALL	"End"
++	0x23	0	-40	-50	-3	-3	SHIFT	"ShEnd"
+
+=	'4'	'4'	321	25	347	50	DIGIT
+#+	'0'	'0'	-3	-50	27	0	DIGIT
++	0x0D	0x0D	-3	25	27	50	THAI
++	0x20	0x20	25	0	75	25	THAI
++	0x08	0x08	-50	0	0	25	THAI
+
+=	'5'	'5'	348	25	374	50	DIGIT
+#+	'0'	"00"	-3	-50	27	0	DIGIT
++	0x0D	0x0D	-3	25	27	50	THAI
++	0x20	0x20	25	0	50	25	THAI
++	0x08	0x08	-50	0	0	25	THAI
+
+=	'6'	'6'	375	25	400	50	DIGIT
++	0x0D	0x0D	-3	25	27	50	THAI
++	0x08	0x08	-50	0	0	25	THAI
+
+########################################################################		
+=	0xFE	"lat_land"	0	50	24	75	SMALL	"Mod"
+
+					
+=	'Z'	'я'	24	50	48	75	CYRILLIC
++	'Z'	'Я'	0	-50	27	0	CYRILLIC
++	0x0D	0x0D	0	25	27	50	THAI
++	0x20	0x20	25	0	100	25	THAI
++	'Z'	0x1a	27	25	100	50	CONTROL	"Ctrl+Z"
++	0x1B	0	-25	28	-3	50	CONTROL	"Win"		
+
+=	'X'	'ч'	48	50	72	75	CYRILLIC
++	'X'	'Ч'	-3	-50	27	0	CYRILLIC
++	0x0D	0x0D	-3	25	27	50	THAI
++	0x20	0x20	25	0	100	25	THAI
++	0x08	0x08	-25	0	0	25	THAI
++	'X'	0x18	27	25	100	50	CONTROL	"Ctrl+X"
+
+=	'C'	'с'	72	50	96	75	CYRILLIC
++	'C'	'С'	-3	-34	27	0	CYRILLIC
++	0x0D	0x0D	-3	25	27	50	THAI
++	0x20	0x20	25	-3	75	25	THAI
++	0x08	0x08	-48	-3	0	25	THAI				
++	'C'	0x03	27	25	100	50	CONTROL	"Ctrl+C"
+
+
+
+=	'V'	'м'	96	50	120	75	CYRILLIC
++	'V'	'М'	-3	-34	27	0	CYRILLIC
++	0x0D	0x0D	-3	25	27	50	THAI
++	0x20	0x20	25	-3	75	25	THAI
++	0x08	0x08	-48	-3	0	25	THAI
++	'V'	0x16	27	25	100	50	CONTROL	"Ctrl+V"
+
+
+
+=	'B'	'и'	120	50	144	75	CYRILLIC
++	'B'	'И'	-3	-50	27	0	CYRILLIC
++	0x0D	0x0D	-3	25	27	50	THAI
++	0x20	0x20	25	0	100	25	THAI
++	0x08	0x08	-50	0	0	25	THAI
++	'B'	0x02	27	25	100	50	CONTROL	"Ctrl+B"
+
+=	'N'	'т'	144	50	168	75	CYRILLIC
++	'N'	'Т'	-3	-50	27	0	CYRILLIC
++	0x0D	0x0D	-3	25	27	50	THAI
++	0x20	0x20	25	0	100	25	THAI
++	0x08	0x08	-50	0	0	25	THAI
++	'N'	0x0e	27	25	100	50	CONTROL	"Ctrl+N"
+
+=	'M'	'ь'	168	50	192	75	CYRILLIC
++	'M'	'Ь'	-3	-50	27	0	CYRILLIC
++	0x0D	0x0D	-3	25	27	50	THAI
++	0x20	0x20	25	0	100	25	THAI
++	0x08	0x08	-50	0	0	25	THAI
++	'M'	0x0d	27	25	100	50	CONTROL	"Ctrl+M"
+
+=	0xBC	'б'	192	50	216	75	CYRILLIC	"qw"	
++	0xBC	'Б'	-2	-34	27	0	CYRILLIC
++	0x0D	0x0D	-3	25	27	50	THAI
++	0x20	0x20	25	-3	75	25	THAI
++	0x08	0x08	-48	-3	0	25	THAI
+
++	0xDB	'['	51	-64	75	-34 	DIGIT
++	0xDD	']'	75	-64	99	-34	DIGIT
+#+	0xC0	'ё'	99	-64	123	-34	CYRILLIC
++	0xDE	'\''	75	-34	99	-3	DIGIT
+
++	'Q'	'q'	-192	-64	-168	-34	LATIN
++	'W'	'w'	-168	-64	-144	-34	LATIN
++	'E'	'e'	-144	-64	-120	-34	LATIN
++	'R'	'r'	-120	-64	-96	-34	LATIN
++	'T'	't'	-96	-64	-72	-34	LATIN
++	'Y'	'y'	-72	-64	-48	-34	LATIN
++	'U'	'u'	-48	-64	-24	-34	LATIN
++	'I'	'i'	-24	-64	1	-34	LATIN
++	'O'	'o'	1	-64	26	-34	LATIN
++	'P'	'p'	26	-64	51	-34	LATIN
+
++	'A'	'a'	-192	-34	-168	-3	LATIN
++	'S'	's'	-168	-34	-144	-3	LATIN
++	'D'	'd'	-144	-34	-120	-3	LATIN
++	'F'	'f'	-120	-34	-96	-3	LATIN
++	'G'	'g'	-96	-34	-72	-3	LATIN
++	'H'	'h'	-72	-34	-48	-3	LATIN
++	'J'	'j'	-48	-34	-24	-3	LATIN
++	'K'	'k'	-24	-34	-2	-3	LATIN
++	'L'	'l'	27	-34	51	-3	LATIN
+#+	0xBA	'ж'	51	-34	75	-3	CYRILLIC
+
++	'Z'	'z'	-192	-3	-168	25	LATIN
++	'X'	'x'	-168	-3	-144	25	LATIN
++	'C'	'c'	-144	-3	-120	25	LATIN
++	'V'	'v'	-120	-3	-96	25	LATIN
++	'B'	'b'	-96	-3	-72	25	LATIN
++	'N'	'n'	-72	-3	-48	25	LATIN
++	'M'	'm'	75	-3	99	25	LATIN
+#+	0xBC	','	99	-3	123	25	CYRILLIC
+#+	0xBE	'.'	99	-34	123	-3	CYRILLIC
+
+=	0xBE	'ю'	216	50	240	75	CYRILLIC	"QW"	
++	0xBE	'Ю'	-3	-34	27	0	CYRILLIC
++	0x0D	0x0D	-3	25	27	50	THAI
++	0x20	0x20	25	-3	75	25	THAI
++	0x08	0x08	-48	-3	0	25	THAI
+
++	0xDB	'{'	26	-64	51	-34	DIGIT
++	0xDD	'}'	51	-64	75	-34	DIGIT
+#+	0xC0	'Ё'	75	-64	99	-34	CYRILLIC
+#+	0xDE	'"'	51	-34	75	-3	CYRILLIC
+
++	'Q'	'Q'	-216	-64	-192	-34	LATIN
++	'W'	'W'	-192	-64	-168	-34	LATIN
++	'E'	'E'	-168	-64	-144	-34	LATIN
++	'R'	'R'	-144	-64	-120	-34	LATIN
++	'T'	'T'	-120	-64	-96	-34	LATIN
++	'Y'	'Y'	-96	-64	-72	-34	LATIN
++	'U'	'U'	-72	-64	-48	-34	LATIN
++	'I'	'I'	-48	-64	-24	-34	LATIN
++	'O'	'O'	-24	-64	1	-34	LATIN
++	'P'	'P'	1	-64	26	-34	LATIN
+
++	'A'	'A'	-216	-34	-192	-3	LATIN
++	'S'	'S'	-192	-34	-168	-3	LATIN
++	'D'	'D'	-168	-34	-144	-3	LATIN
++	'F'	'F'	-144	-34	-120	-3	LATIN
++	'G'	'G'	-120	-34	-96	-3	LATIN
++	'H'	'H'	-96	-34	-72	-3	LATIN
++	'J'	'J'	-72	-34	-48	-3	LATIN
++	'K'	'K'	-48	-34	-24	-3	LATIN
++	'L'	'L'	-24	-34	-1	-3	LATIN
+#+	0xBA	';'	26	-34	51	-3	CYRILLIC
+
++	'Z'	'Z'	-216	-3	-192	25	LATIN
++	'X'	'X'	-192	-3	-168	25	LATIN
++	'C'	'C'	-168	-3	-144	25	LATIN
++	'V'	'V'	-144	-3	-120	25	LATIN
++	'B'	'B'	-120	-3	-96	25	LATIN
++	'N'	'N'	-96	-3	-72	25	LATIN
++	'M'	'M'	-72	-3	-48	25	LATIN
++	0xBC	'<'	27	-34	51	-3	DIGIT
++	0xBE	'>'	51	-34	75	-3	DIGIT
+
+=	0xDE	'.'	240	50	264	75	DIGIT	" ,"	'/'
++	0xDE	','	-3	-50	27	0	DIGIT
++	0x0D	0x0D	-3	25	27	50	THAI
++	0x20	0x20	25	0	100	25	THAI
++	0x08	0x08	-50	0	0	25	THAI
++	0xDE	'\\'	27	-50	100	0	DIGIT
++	0xDE	'|'	-50	-50	0	25	DIGIT
++	0xDE	'/'	-50	25	0	50	DIGIT
+
+=	0xDB	'`'	264	50	292	75	DIGIT	'~'
++	0xDB	'~'	-3	-50	27	0	DIGIT
++	0x0D	0x0D	-3	25	27	50	THAI
++	0x20	0x20	25	0	100	25	THAI
++	0x08	0x08	-50	0	0	25	THAI
+
+
+=	0x28	0	292	50	320	75	SMALL	'↓'	"Pg↓"
++	0x28	0	-3	-50	27	0	SHIFT	"Sh↓"
++	0x22	0	-40	-3	-3	28	SMALL	"PgDown"
++	0x22	0	-40	-50	-3	-3	SHIFT	"ShPgDn"
+
+=	'1'	'1'	321	50	347	75	DIGIT	'0'
++	'0'	'0'	-3	-50	27	0	DIGIT
++	0x0D	0x0D	-3	25	27	50	THAI
++	0x20	0x20	25	0	75	25	THAI
++	0x08	0x08	-50	0	0	25	THAI
+
+=	'2'	'2'	348	50	374	75	DIGIT	"00"
++	'0'	"00"	-3	-50	27	0	DIGIT
++	0x0D	0x0D	-3	25	27	50	THAI
++	0x20	0x20	25	0	50	25	THAI
++	0x08	0x08	-50	0	0	25	THAI
+
+=	'3'	'3'	375	50	400	75	DIGIT	"000"
++	'0'	"000"	-3	-50	27	0	DIGIT
++	0x0D	0x0D	-3	25	27	50	THAI
++	0x08	0x08	-50	0	0	25	THAI
+
+########################################################################							
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
